@@ -2,13 +2,13 @@
 
 import * as AWS from 'aws-sdk';
 
-import { tourTable } from './config'
+import { routeTable } from './config'
 
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
 export const remove = (event: LambdaEvent<{ id: string }>, context: Context, callback: LambdaCallback) => {
   const params = {
-    TableName: tourTable,
+    TableName: routeTable,
     Key: {
       id: event.pathParameters.id
     }
@@ -17,7 +17,7 @@ export const remove = (event: LambdaEvent<{ id: string }>, context: Context, cal
   dynamoDb.delete(params, (error, result) => {
     if (error) {
       console.error(error);
-      callback(new Error('Couldn\'t delete the tour item.'));
+      callback(new Error('Couldn\'t delete the route item.'));
       return;
     }
 

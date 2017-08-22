@@ -2,12 +2,12 @@
 
 import * as AWS from 'aws-sdk';
 
-import { Tour } from './Tour';
 import { isAuthorized } from './authorizer'
+import { Route } from './Route';
 
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
-export const create = (event: LambdaEvent<{}>, context: Context, callback: LambdaCallback) => {
+export const update = (event: LambdaEvent<{ id: string }>, context: Context, callback: LambdaCallback) => {
   if (!isAuthorized(event.requestContext.authorizer.roles, 'tester')) {
     const response: HttpResponse = {
       statusCode: 403,
@@ -20,15 +20,13 @@ export const create = (event: LambdaEvent<{}>, context: Context, callback: Lambd
     return;
   }
 
-  const tour = new Tour(dynamoDb, event.headers.Authorization, event.requestContext.authorizer.email);
-  tour.create(JSON.parse(event.body), (error, result) => {
+  const route = new Route(dynamoDb, event.requestContext.authorizer.email);
+  route.update(event.pathParameters.id, JSON.parse(event.body), (error, result) => {
     if (error) {
       console.error(error);
-      callback(new Error('Couldn\'t create the tour item.'));
+      callback(new Error('Couldn\'t update the route item.'));
       return;
     }
-
-    console.log('Create Result', result)
 
     const response: HttpResponse = {
       statusCode: 200,

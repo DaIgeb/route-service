@@ -2,20 +2,18 @@
 
 import * as AWS from 'aws-sdk';
 
-import { Tour } from './Tour';
+import { Route } from './Route';
 
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
-export const apiUrl = 'https://api.aws.daigeb.ch';
-
 export const get = (event: LambdaEvent<{ id: string }>, context: Context, callback: LambdaCallback) => {
   console.log(event, context);
-  const tour = new Tour(dynamoDb, event.headers.Authorization, event.requestContext.authorizer.email);
+  const route = new Route(dynamoDb, event.requestContext.authorizer.email);
 
-  tour.get(event.pathParameters.id, (error, tour) => {
+  route.get(event.pathParameters.id, (error, route) => {
     if (error) {
       console.error(error);
-      callback(new Error('Couldn\'t fetch the tour item.'));
+      callback(new Error('Couldn\'t fetch the route item.'));
       return;
     }
 
@@ -24,7 +22,7 @@ export const get = (event: LambdaEvent<{ id: string }>, context: Context, callba
       headers: {
         "Access-Control-Allow-Origin": "*"
       },
-      body: JSON.stringify(tour)
+      body: JSON.stringify(route)
     };
     callback(null, response);
   });
